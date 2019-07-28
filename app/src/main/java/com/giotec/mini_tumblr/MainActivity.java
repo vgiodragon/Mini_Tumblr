@@ -3,6 +3,8 @@ package com.giotec.mini_tumblr;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
@@ -16,16 +18,20 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.giotec.mini_tumblr.Fragments.Chat;
-import com.giotec.mini_tumblr.Fragments.Home;
+import com.giotec.mini_tumblr.Fragments.Home.Home;
 import com.giotec.mini_tumblr.Fragments.Profile;
 import com.giotec.mini_tumblr.Fragments.Search;
+import com.giotec.mini_tumblr.Utils.Utils;
 import com.google.android.material.tabs.TabLayout;
 import com.tumblr.jumblr.JumblrClient;
 import com.tumblr.jumblr.types.Blog;
 import com.tumblr.jumblr.types.Post;
 import com.tumblr.jumblr.types.User;
 
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements Home.OnFragmentInteractionListener, Search.OnFragmentInteractionListener, Chat.OnFragmentInteractionListener, Profile.OnFragmentInteractionListener{
 
@@ -40,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements Home.OnFragmentIn
     private static final String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.WAKE_LOCK};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,8 +60,10 @@ public class MainActivity extends AppCompatActivity implements Home.OnFragmentIn
         AddFragmentsAndSetAdapter();
         tabLayout.setupWithViewPager(viewPager);
         setViewPagerandIcons();
-        new ConectarTumblr().execute();
+        //new ConectarTumblr().execute();
+        //setRecyclerAndPost();
     }
+
 
 
     private class ConectarTumblr extends AsyncTask<Void, Void, Void> {
@@ -74,29 +83,58 @@ public class MainActivity extends AppCompatActivity implements Home.OnFragmentIn
             );
 
 
-
             // Write the user's name
             User user = client.user();
             Log.d(TAG,user.getName());
-            System.out.println(user.getName());
-
-// And list their blogs
-            for (Blog blog : user.getBlogs()) {
-                Log.d("GIOTEC_SAC","\t" + blog.getTitle());
-            }
 
             //List<Post> posts = client.userDashboard();
-            for (Post post : client.userDashboard()) {
-                JumblrClient client2 = post.getClient();
-                Log.d(TAG,post.toString() );
+            //Post mpost = posts.get(0);
+            //Log.d(TAG,mpost.toString() );
+            List<Blog> blogs = client.userFollowing();
+            //Utils utils = Utils.getSingletonInstance(blogs);
+            /*for (Blog blog : blogs) {
+                Log.d(TAG,blog.getName());//Nombre
+                Log.d(TAG,blog.avatar());//Link para la imagen
+                Log.d(TAG,blog.getTitle());//tittle de mrd
+            }*/
+            // Make the request
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("limit", 1);
 
-                Log.d(TAG,"\t"+post.getPostUrl() );
-                Log.d(TAG,"\t"+post.getSlug() );
-                Log.d(TAG,"\t"+post.getSourceTitle() );
-                Log.d(TAG,"\t"+post.getNoteCount() );
+            params.put("notes_info", true);
+            List<Post> posts = client.userDashboard(params);
+
+/*
+            PhotoPost mpost= (PhotoPost) posts.get(0);
+
+            if(mpost.getNotes()!=null){
+                List<Note>  notes = mpost.getNotes();
+                Log.d(TAG,"getReplyText\t"+notes.get(0).getReplyText() );
+                Log.d(TAG,"getAddedText\t"+notes.get(0).getAddedText());
             }
-// Like the most recent "lol" tag
-            //client.tagged("lol").get(0).like();
+
+            //Log.d(TAG,"getAuthorId\t"+mpost.getAuthorId() );
+            Log.d(TAG,"getPostUrl\t"+mpost.getPostUrl() );
+            Log.d(TAG,"getShortUrl\t"+mpost.getShortUrl() );
+            //Log.d(TAG,"getState\t"+mpost.getState());
+            Log.d(TAG,"getBlogName\t"+mpost.getBlogName());
+            //Log.d(TAG,"getFormat\t"+mpost.getFormat());
+            Log.d(TAG,"getTimestamp\t"+mpost.getTimestamp());
+            Log.d(TAG,"getTags\t"+mpost.getTags());
+
+            Log.d(TAG,"getId\t"+mpost.getId());
+            //Log.d(TAG,"getSourceTitle\t"+mpost.getSourceTitle());
+            Log.d(TAG,"getType\t"+mpost.getType());
+
+            Log.d(TAG,"getSlug\t"+mpost.getSlug() );
+            Log.d(TAG,"getSourceTitle\t"+mpost.getSourceTitle() );
+
+
+            Log.d(TAG,"getSlug\t"+mpost.getSlug() );
+            Log.d(TAG,"getSourceTitle\t"+mpost.getSourceTitle() );
+            Log.d(TAG,"getCaption\t"+mpost.getCaption() );
+
+*/
             return null;
         }
     }
