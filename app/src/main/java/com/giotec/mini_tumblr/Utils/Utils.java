@@ -3,25 +3,28 @@ package com.giotec.mini_tumblr.Utils;
 import android.util.Log;
 
 import com.giotec.mini_tumblr.Models.Blog_item;
-import com.tumblr.jumblr.types.Blog;
+import com.giotec.mini_tumblr.Models.Post_Item;
+import com.tumblr.jumblr.JumblrClient;
 import com.tumblr.jumblr.types.Post;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Utils {
     private static List<Blog_item> blogs;
-    private static List<Post> posts;
+    private static List<Post_Item> posts;
     private static Utils utils;
     private static String TAG="GIODEBUG_UTILS";
+    private static JumblrClient client;
 
-    private Utils(List<Blog_item> blogs){
-        this.blogs=blogs;
+    private Utils(JumblrClient client) {
+        this.client = client;
     }
 
-    public static Utils getSingletonInstance(List<Blog_item> blogs2){
+    public static Utils getSingletonInstance(JumblrClient client2){
         if(blogs == null){
-            utils = new Utils(blogs2);
-            Log.d(TAG,"blogs seteado!");
+            utils = new Utils(client2);
+            Log.d(TAG,"JumblrClient seteado!");
         }
         else {
             Log.d(TAG,"Ya estaba iniciada el Utils");
@@ -29,35 +32,41 @@ public class Utils {
         return utils;
     }
 
+    public static void setBlogs(List<Blog_item> blogs) {
+        Utils.blogs = blogs;
+    }
+
     public static Blog_item getBlogbyName(String name){
-        Log.d(TAG,"name "+ name + " "+blogs.size());
         for (Blog_item blog : blogs) {
-            Log.d(TAG,blog.getName());//Nombre
-            Log.d(TAG, blog.getAvatar());
             if (blog.getName().equals(name)) return blog;
         }
         return null;
     }
 
-    public static List<Post> getPosts() {
+    public static List<Post_Item> getPosts() {
         return posts;
     }
 
     public static void setPosts(List<Post> posts) {
-        Utils.posts = posts;
+        Utils.posts = filterPosts(posts);
     }
 
-    public static void addPost(List<Post> posts) {
-        if(Utils.posts!=null){
-            for (Post post : posts)
-                Utils.posts.add(post);
-        }else{
-            setPosts(posts);
+    public static List<Post_Item> filterPosts(List<Post> posts) {
+        List<Post_Item> mposts = new ArrayList<>();
+        String type = "";
+        for (Post post : posts){
+            type = post.getType().getValue();
+            if (type.equals("text")||type.equals("photo"))
+                mposts.add(new Post_Item(post,type));
         }
+        return mposts;
     }
 
-    public static String cleanCaption(String caption){
-        return caption.replace("<p>","").replace("</p>","");
+
+    public static String cleanHTML(String caption){
+        return caption.replace("<p>","")
+                .replace("</p>","")
+                .replace("<br/>","");
     }
 
     public static String cleanTags(List<String> tags){
@@ -65,5 +74,9 @@ public class Utils {
         for(String mtag : tags)
             tag += "#"+mtag+"\t";
         return tag;
+    }
+
+    public static JumblrClient getClient() {
+        return client;
     }
 }

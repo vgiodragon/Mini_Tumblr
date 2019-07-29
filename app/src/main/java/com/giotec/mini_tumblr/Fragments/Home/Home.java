@@ -2,18 +2,29 @@ package com.giotec.mini_tumblr.Fragments.Home;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
+import com.giotec.mini_tumblr.Models.Post_Item;
 import com.giotec.mini_tumblr.R;
 import com.giotec.mini_tumblr.Utils.Utils;
+import com.tumblr.jumblr.types.Post;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,10 +40,13 @@ public class Home extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-
+    private boolean loading = false;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private LinearLayoutManager layoutManager;
+    private String TAG = "GIODEBUG_HOME";
+    private List<Post_Item> post_items;
+    private ProgressBar mprogressbar;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -75,14 +89,56 @@ public class Home extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
-
-        adapter = new MyAdapter(getContext(), Utils.getPosts());
+        post_items = Utils.getPosts();
+        adapter = new MyAdapter(getContext(), post_items );
+        adapter.setHasStableIds(true);
         recyclerView = v.findViewById(R.id.my_recycler_noticia);
-
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
+
+        mprogressbar = v.findViewById(R.id.progressBar);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (!recyclerView.canScrollVertically(1)&& newState==RecyclerView.SCROLL_STATE_IDLE) {
+                    Log.d(TAG,"Cargara");
+                    mprogressbar.setVisibility(View.VISIBLE);
+                    new LoadMorePosts().execute();
+                }
+            }
+        });
         return v;
+    }
+
+    private class LoadMorePosts extends AsyncTask<Void, Void, Void> {
+        private boolean newposts=false;
+        @Override
+        protected Void doInBackground(Void... voids) {
+            if(!loading){
+                loading=true;
+                Map<String, Object> params = new HashMap<String, Object>();
+                params.put("limit", 7);
+                params.put("offset", Utils.getPosts().size());
+                List<Post> posts = Utils.getClient().userDashboard(params);
+                post_items.addAll(Utils.filterPosts(posts));
+                newposts = true;
+                loading=false;
+            }else{
+                Log.d(TAG,"Already loading...");
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if(newposts){
+                mprogressbar.setVisibility(View.INVISIBLE);
+                adapter.notifyDataSetChanged();
+            }
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event

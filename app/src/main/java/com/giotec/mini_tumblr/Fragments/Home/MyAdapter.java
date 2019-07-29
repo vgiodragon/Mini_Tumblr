@@ -1,6 +1,9 @@
 package com.giotec.mini_tumblr.Fragments.Home;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,26 +15,20 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.giotec.mini_tumblr.Models.Blog_item;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.giotec.mini_tumblr.Models.Post_Item;
 import com.giotec.mini_tumblr.R;
-import com.giotec.mini_tumblr.Utils.Connections;
-import com.giotec.mini_tumblr.Utils.Utils;
-import com.tumblr.jumblr.types.Blog;
-import com.tumblr.jumblr.types.Photo;
-import com.tumblr.jumblr.types.PhotoPost;
-import com.tumblr.jumblr.types.PhotoSize;
-import com.tumblr.jumblr.types.Post;
-import com.tumblr.jumblr.types.TextPost;
 
+import java.io.InputStream;
 import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.PostAdapterViewHolder>{
 
-    private List<Post> mposts;
+    private List<Post_Item> mposts;
     private Context context;
     private String TAG="GIODEBUG_ADAPTER";
 
-    public MyAdapter(Context context, List<Post> mposts) {
+    public MyAdapter(Context context, List<Post_Item> mposts) {
         this.context = context;
         this.mposts = mposts;
     }
@@ -47,40 +44,29 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.PostAdapterViewHol
     @Override
     public void onBindViewHolder(@NonNull PostAdapterViewHolder holder, int position) {
 
-        Post mpost = mposts.get(position);
-
-        Blog_item mblog = Utils.getBlogbyName(mpost.getBlogName());
-        holder.tv_BlogName.setText(mblog.getName());
-        //ImageView avatar = holder.iv_avatar;
-
+        Post_Item mpost = mposts.get(position);
+        String type = mpost.getType();
+        holder.tv_BlogName.setText(mpost.getBlog_item().getName());
         Glide.with(context)
-                .load(mblog.getAvatar())
-                .into(holder.iv_avatar);
-        String type = mpost.getType().getValue();
-        holder.tv_tags.setText(Utils.cleanTags(mpost.getTags()));
-        //Log.d("GIODEBUG_ADAPTER","type "+ type);
+                .load(mpost.getBlog_item().getAvatar()).dontAnimate()
+                .diskCacheStrategy(DiskCacheStrategy.ALL).into(holder.iv_avatar);
+        holder.tv_body.setText(mpost.getBody());
+        holder.tv_tags.setText(mpost.getTags());
+        if(mpost.isLiked()) holder.iv_like.setImageResource(R.drawable.ic_favorite_red_24dp);
+
         if (type.equals("text")){
             holder.iv_photo.setVisibility(View.GONE);
-            TextPost textPost = (TextPost) mposts.get(position);
-            holder.tv_title.setText(textPost.getTitle());
-            holder.tv_body.setText(textPost.getBody());
+            holder.tv_title.setText(mpost.getTitle());
         }else if(type.equals("photo")){
             holder.tv_title.setVisibility(View.GONE);
-            PhotoPost photoPost = (PhotoPost) mposts.get(position);
-            String url="";
-            for (Photo photo: photoPost.getPhotos()){
-                PhotoSize photoSize= photo.getSizes().get(0);
-                url = photoSize.getUrl();
-                break;
-            }
-
+            //new DownloadImageTask(holder.iv_photo).execute(mpost.getUrlPhoto());
             Glide.with(context)
-                    .load(url)
-                    .into(holder.iv_photo);
-            holder.tv_body.setText(Utils.cleanCaption(photoPost.getCaption()));
+                    .load(mpost.getUrlPhoto())//.thumbnail(0.5f)
+                    .fitCenter().dontAnimate()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL).dontAnimate().into(holder.iv_photo);
+
         }else
             Log.d(TAG,"ELSE "+ type);
-
     }
 
     @Override
@@ -95,7 +81,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.PostAdapterViewHol
         public TextView tv_title;
         public TextView tv_body;
         public TextView tv_tags;
-
+        public ImageView iv_like;
 
         public PostAdapterViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -105,6 +91,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.PostAdapterViewHol
             tv_title = itemView.findViewById(R.id.tv_title);
             tv_body = itemView.findViewById(R.id.tv_body);
             tv_tags = itemView.findViewById(R.id.tv_tags);
+            iv_like = itemView.findViewById(R.id.iv_like);
         }
+    }
+
+    @Override
+    public long getItemId(int position) {
+
+        Post_Item mpost = mposts.get(position);
+        return mpost.getId();
     }
 }
