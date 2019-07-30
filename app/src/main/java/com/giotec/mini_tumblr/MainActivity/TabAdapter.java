@@ -1,4 +1,4 @@
-package com.giotec.mini_tumblr;
+package com.giotec.mini_tumblr.MainActivity;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;

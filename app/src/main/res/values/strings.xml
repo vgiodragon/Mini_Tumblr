@@ -8,4 +8,9 @@
     <string name="tokenSecret">r8DGrGwSZgoUsOZTyo7rQqxli21IOXU1OtlWo3xpugocFGM7JG</string>
     <string name="noInternet">No hay conexión a Internet.</string>
     <string name="menuEliminar">Eliminar</string>
+    <string name="prompt_user">Usuario</string>
+    <string name="prompt_password">Contraseña</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="login_failed">"Usuario y Contraseña erróneos"</string>
 </resources>

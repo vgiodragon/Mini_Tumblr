@@ -175,8 +175,6 @@ public class Home extends Fragment {
     }
 
     public void RemovePost(int position){
-        Toast.makeText(getContext(),"Removed : " + position,Toast.LENGTH_SHORT).show();
-
         post_items.remove(position);
         adapter.notifyItemRemoved(position);
         adapter.notifyItemRangeChanged(position,post_items.size());

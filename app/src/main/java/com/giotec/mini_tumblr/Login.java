@@ -15,9 +15,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import com.giotec.mini_tumblr.MainActivity.MainActivity;
 import com.giotec.mini_tumblr.Models.BlogItem;
 import com.giotec.mini_tumblr.Utils.Connections;
 import com.giotec.mini_tumblr.Utils.G_Utils;
@@ -37,6 +40,8 @@ import java.util.Map;
 public class Login extends AppCompatActivity {
     private String TAG = "GIODEBUG_TBMLR";
     private Button bLogin;
+    private EditText etUser;
+    private EditText etPassword;
 
     private static final int PERMISSION_ALL = 3;
     private final int code_request=1234;
@@ -49,16 +54,30 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         bLogin = findViewById(R.id.blogin);
+        etUser = findViewById(R.id.etusuario);
+        etPassword = findViewById(R.id.etpassword);
         if(!hasPermissions(this, PERMISSIONS))
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
     }
 
     public void Login(View view){
+        String user = etUser.getText().toString();
+        String pass = etPassword.getText().toString();
+        etPassword.onEditorAction(EditorInfo.IME_ACTION_DONE);
+        if(G_Utils.validLogin(user,pass)) GoMainActivity();
+        else Toast.makeText(this,getString(R.string.login_failed),Toast.LENGTH_LONG).show();
+
+    }
+
+    public void GoMainActivity(){
         Animation animation = AnimationUtils.loadAnimation(this,R.anim.mixed_anim);
         new ConectarTumblr().execute();
         bLogin.startAnimation(animation);
         bLogin.setEnabled(false);
+        etUser.setVisibility(View.INVISIBLE);
+        etPassword.setVisibility(View.INVISIBLE);
     }
+
 
     private class ConectarTumblr extends AsyncTask<Void, Void, Boolean> {
         @Override
@@ -72,8 +91,8 @@ public class Login extends AppCompatActivity {
                 Map<String, Object> params = new HashMap<String, Object>();
                 params.put("limit", Utils.getLimit());
                 List<Post> posts = client.userDashboard(params);
-
                 Utils.FilterSetAndSavePosts(posts,getApplicationContext());
+                Connections.setClient(client);
             }catch (Exception ex) {
                 Log.d(TAG,ex.getMessage());
                 return false;
@@ -91,6 +110,8 @@ public class Login extends AppCompatActivity {
                             Toast.LENGTH_LONG).show();
                     bLogin.clearAnimation();
                     bLogin.setEnabled(true);
+                    etUser.setVisibility(View.VISIBLE);
+                    etPassword.setVisibility(View.VISIBLE);
                     return;
                 }
 

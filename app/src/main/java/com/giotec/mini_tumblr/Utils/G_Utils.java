@@ -21,6 +21,7 @@ public class G_Utils {
     private static final String idmjpost = "post_items";
     private static String TAG="GIODEBUG_G_UTILS";
 
+
     public static String getValuePreference() {
         return valuePreference;
     }
@@ -58,9 +59,12 @@ public class G_Utils {
 
         if(mjposts.equals(defaultpref)) return false;
 
+        return loadBlogsandPosts(mjposts);
+    }
+
+    private static boolean loadBlogsandPosts(String mjposts){
         List<BlogItem> mblogs = new ArrayList<>();
         List<PostItem> mposts = new ArrayList<>();
-
         try {
             JSONArray mjsonarray = new JSONArray(mjposts);
             for (int i = 0 ; i < mjsonarray.length(); i++) {
@@ -69,15 +73,17 @@ public class G_Utils {
                 mposts.add(mpost_item);
                 if(isNewBlog(mblogs,mpost_item.getBlog_item()))
                     mblogs.add(mpost_item.getBlog_item());
-                //Check and save Blogs
             }
         } catch (JSONException e) {
             e.printStackTrace();
+            return false;
         }
         Utils.setBlogs(mblogs);
         Utils.setPosts(mposts);
+
         return true;
     }
+
 
     public static boolean isNewBlog(List<BlogItem> mblogs, BlogItem blog){
         for(BlogItem blog_item : mblogs){
@@ -86,4 +92,8 @@ public class G_Utils {
         return true;
     }
 
+    public static boolean validLogin(String user,String pass){
+        if(user.equals("admin") && pass.equals("admin")) return true;
+        return false;
+    }
 }

@@ -8,9 +8,12 @@ import com.tumblr.jumblr.JumblrClient;
 public class Connections {
     private static JumblrClient client;
 
-
     public static JumblrClient getClient() {
         return client;
+    }
+
+    public static void setClient(JumblrClient client) {
+        Connections.client = client;
     }
 
     public static JumblrClient getClientwithToken(Context ctx){

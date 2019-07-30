@@ -1,4 +1,4 @@
-package com.giotec.mini_tumblr;
+package com.giotec.mini_tumblr.MainActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
@@ -17,6 +17,7 @@ import com.giotec.mini_tumblr.Fragments.Chat;
 import com.giotec.mini_tumblr.Fragments.Home.Home;
 import com.giotec.mini_tumblr.Fragments.Profile;
 import com.giotec.mini_tumblr.Fragments.Search;
+import com.giotec.mini_tumblr.R;
 import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity implements Home.OnFragmentInteractionListener, Search.OnFragmentInteractionListener, Chat.OnFragmentInteractionListener, Profile.OnFragmentInteractionListener{
