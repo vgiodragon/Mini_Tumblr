@@ -1,4 +1,4 @@
-package com.giotec.mini_tumblr.Fragments;
+package com.giotec.mini_tumblr.UI.Fragments;
 
 import android.content.Context;
 import android.net.Uri;
@@ -15,12 +15,12 @@ import com.giotec.mini_tumblr.R;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link Profile.OnFragmentInteractionListener} interface
+ * {@link Search.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link Profile#newInstance} factory method to
+ * Use the {@link Search#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Profile extends Fragment {
+public class Search extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -32,7 +32,7 @@ public class Profile extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public Profile() {
+    public Search() {
         // Required empty public constructor
     }
 
@@ -42,11 +42,11 @@ public class Profile extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment Profile.
+     * @return A new instance of fragment Search.
      */
     // TODO: Rename and change types and number of parameters
-    public static Profile newInstance(String param1, String param2) {
-        Profile fragment = new Profile();
+    public static Search newInstance(String param1, String param2) {
+        Search fragment = new Search();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -67,7 +67,7 @@ public class Profile extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+        return inflater.inflate(R.layout.fragment_search, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

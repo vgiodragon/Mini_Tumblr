@@ -20,7 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.giotec.mini_tumblr.MainActivity.MainActivity;
+import com.giotec.mini_tumblr.UI.MainActivity.MainActivity;
 import com.giotec.mini_tumblr.Models.BlogItem;
 import com.giotec.mini_tumblr.Utils.Connections;
 import com.giotec.mini_tumblr.Utils.G_Utils;
