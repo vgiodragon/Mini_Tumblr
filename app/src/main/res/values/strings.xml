@@ -6,4 +6,6 @@
     <string name="consumerSecret">u8xM2f6XpClNCIQJxuulP30mYCj9st3DPQJ7vJQYTlPEhFrVYO</string>
     <string name="token">VAymU1RyN3pMquPLI98S71h5TzYSisJNQl4YnTUewS1qNR8dtn</string>
     <string name="tokenSecret">r8DGrGwSZgoUsOZTyo7rQqxli21IOXU1OtlWo3xpugocFGM7JG</string>
+    <string name="noInternet">No hay conexión a Internet.</string>
+    <string name="menuEliminar">Eliminar</string>
 </resources>

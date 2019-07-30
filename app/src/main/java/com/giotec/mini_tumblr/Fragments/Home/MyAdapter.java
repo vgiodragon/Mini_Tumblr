@@ -1,36 +1,36 @@
 package com.giotec.mini_tumblr.Fragments.Home;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.giotec.mini_tumblr.Models.Post_Item;
+import com.giotec.mini_tumblr.Models.PostItem;
 import com.giotec.mini_tumblr.R;
 
-import java.io.InputStream;
 import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.PostAdapterViewHolder>{
 
-    private List<Post_Item> mposts;
+    private List<PostItem> mposts;
     private Context context;
     private String TAG="GIODEBUG_ADAPTER";
+    Home.OnFragmentInteractionListener mListener;
 
-    public MyAdapter(Context context, List<Post_Item> mposts) {
+    public MyAdapter(Context context, List<PostItem> mposts, Home.OnFragmentInteractionListener mListener) {
         this.context = context;
         this.mposts = mposts;
+        this.mListener = mListener;
     }
 
     @NonNull
@@ -44,7 +44,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.PostAdapterViewHol
     @Override
     public void onBindViewHolder(@NonNull PostAdapterViewHolder holder, int position) {
 
-        Post_Item mpost = mposts.get(position);
+        PostItem mpost = mposts.get(position);
         String type = mpost.getType();
         holder.tv_BlogName.setText(mpost.getBlog_item().getName());
         Glide.with(context)
@@ -52,19 +52,17 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.PostAdapterViewHol
                 .diskCacheStrategy(DiskCacheStrategy.ALL).into(holder.iv_avatar);
         holder.tv_body.setText(mpost.getBody());
         holder.tv_tags.setText(mpost.getTags());
-        if(mpost.isLiked()) holder.iv_like.setImageResource(R.drawable.ic_favorite_red_24dp);
+        mListener.setLike(holder.iv_like,mpost.isLiked());
 
         if (type.equals("text")){
             holder.iv_photo.setVisibility(View.GONE);
             holder.tv_title.setText(mpost.getTitle());
         }else if(type.equals("photo")){
             holder.tv_title.setVisibility(View.GONE);
-            //new DownloadImageTask(holder.iv_photo).execute(mpost.getUrlPhoto());
             Glide.with(context)
-                    .load(mpost.getUrlPhoto())//.thumbnail(0.5f)
+                    .load(mpost.getUrlPhoto())
                     .fitCenter().dontAnimate()
                     .diskCacheStrategy(DiskCacheStrategy.ALL).dontAnimate().into(holder.iv_photo);
-
         }else
             Log.d(TAG,"ELSE "+ type);
     }
@@ -82,6 +80,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.PostAdapterViewHol
         public TextView tv_body;
         public TextView tv_tags;
         public ImageView iv_like;
+        public ImageView iv_cross;
 
         public PostAdapterViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -92,13 +91,29 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.PostAdapterViewHol
             tv_body = itemView.findViewById(R.id.tv_body);
             tv_tags = itemView.findViewById(R.id.tv_tags);
             iv_like = itemView.findViewById(R.id.iv_like);
+            iv_like.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mposts.get(getAdapterPosition())
+                            .setLiked(!mposts.get(getAdapterPosition()).isLiked());
+                    mListener.setLike(iv_like,mposts.get(getAdapterPosition()).isLiked());
+                }
+            });
+            iv_cross = itemView.findViewById(R.id.iv_cros);
+            iv_cross.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.Eliminate(v,getAdapterPosition());
+                }
+            });
         }
     }
 
     @Override
     public long getItemId(int position) {
-
-        Post_Item mpost = mposts.get(position);
+        PostItem mpost = mposts.get(position);
         return mpost.getId();
     }
+
+
 }

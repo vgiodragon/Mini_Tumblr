@@ -1,82 +1,87 @@
 package com.giotec.mini_tumblr.Utils;
 
-import android.util.Log;
+import android.content.Context;
 
-import com.giotec.mini_tumblr.Models.Blog_item;
-import com.giotec.mini_tumblr.Models.Post_Item;
-import com.tumblr.jumblr.JumblrClient;
+import com.giotec.mini_tumblr.Models.BlogItem;
+import com.giotec.mini_tumblr.Models.PostItem;
 import com.tumblr.jumblr.types.Post;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Utils {
-    private static List<Blog_item> blogs;
-    private static List<Post_Item> posts;
-    private static Utils utils;
+    private static List<BlogItem> blogs;
+    private static List<PostItem> posts;
     private static String TAG="GIODEBUG_UTILS";
-    private static JumblrClient client;
+    private static final int limit = 8;
 
-    private Utils(JumblrClient client) {
-        this.client = client;
-    }
 
-    public static Utils getSingletonInstance(JumblrClient client2){
-        if(blogs == null){
-            utils = new Utils(client2);
-            Log.d(TAG,"JumblrClient seteado!");
-        }
-        else {
-            Log.d(TAG,"Ya estaba iniciada el Utils");
-        }
-        return utils;
-    }
-
-    public static void setBlogs(List<Blog_item> blogs) {
+    public static void setBlogs(List<BlogItem> blogs) {
         Utils.blogs = blogs;
     }
 
-    public static Blog_item getBlogbyName(String name){
-        for (Blog_item blog : blogs) {
+    public static BlogItem getBlogbyName(String name){
+        for (BlogItem blog : blogs) {
             if (blog.getName().equals(name)) return blog;
         }
         return null;
     }
 
-    public static List<Post_Item> getPosts() {
+    public static List<PostItem> getPosts() {
         return posts;
     }
 
-    public static void setPosts(List<Post> posts) {
-        Utils.posts = filterPosts(posts);
+    public static void FilterSetAndSavePosts(List<Post> posts, Context context) {
+        setPosts(filterPosts(posts));
+        G_Utils.savePostinPreferences(context,getPosts());
     }
 
-    public static List<Post_Item> filterPosts(List<Post> posts) {
-        List<Post_Item> mposts = new ArrayList<>();
+    public static void setPosts(List<PostItem> posts) {
+        Utils.posts = posts;
+    }
+
+    public static List<PostItem> filterPosts(List<Post> posts) {
+        List<PostItem> mposts = new ArrayList<>();
         String type = "";
         for (Post post : posts){
             type = post.getType().getValue();
             if (type.equals("text")||type.equals("photo"))
-                mposts.add(new Post_Item(post,type));
+                mposts.add(new PostItem(post,type));
         }
         return mposts;
     }
 
+    public static List<PostItem> filterPosts(List<Post> orig_posts, List<Post> posts, int offset) {
+        List<PostItem> mposts = new ArrayList<>();
+        String type = "";
+        for (Post post : posts){
+            type = post.getType().getValue();
+            if (type.equals("text")||type.equals("photo")){
+                PostItem mpost_item = newPost_Item(orig_posts,post,type,offset);
+                if(mpost_item!=null) mposts.add(new PostItem(post,type));
+            }
+        }
+        return mposts;
+    }
 
-    public static String cleanHTML(String caption){
-        return caption.replace("<p>","")
-                .replace("</p>","")
-                .replace("<br/>","");
+    public static PostItem newPost_Item(List<Post> orig_posts, Post post, String type, int offset){
+        if(offset<orig_posts.size()){
+            for(int i = orig_posts.size()-offset; i<orig_posts.size();i++)
+                if(orig_posts.get(i).getId()==post.getId()) return null;
+            return new PostItem(post,type);
+        }
+        return null;
     }
 
     public static String cleanTags(List<String> tags){
         String tag = "";
         for(String mtag : tags)
-            tag += "#"+mtag+"\t";
+            tag += "#"+mtag+"    ";
         return tag;
     }
 
-    public static JumblrClient getClient() {
-        return client;
+    public static int getLimit() {
+        return limit;
     }
+
 }

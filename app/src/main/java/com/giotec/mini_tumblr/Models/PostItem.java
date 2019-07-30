@@ -1,5 +1,7 @@
 package com.giotec.mini_tumblr.Models;
 
+import android.text.Html;
+
 import com.giotec.mini_tumblr.Utils.Utils;
 import com.tumblr.jumblr.types.Photo;
 import com.tumblr.jumblr.types.PhotoPost;
@@ -7,19 +9,22 @@ import com.tumblr.jumblr.types.PhotoSize;
 import com.tumblr.jumblr.types.Post;
 import com.tumblr.jumblr.types.TextPost;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class Post_Item {
+
+public class PostItem {
     private String type;
     private String tags;
     private boolean liked;
-    private Blog_item blog_item;
+    private BlogItem blogItem;
     private String title;
     private String body;
     private String urlPhoto;
     private long id;
 
-    public Post_Item(Post mpost, String type){
-        this.blog_item = Utils.getBlogbyName(mpost.getBlogName());
+    public PostItem(Post mpost, String type){
+        this.blogItem = Utils.getBlogbyName(mpost.getBlogName());
         this.tags = Utils.cleanTags(mpost.getTags());
         this.type = type;
         this.liked = mpost.isLiked();
@@ -32,7 +37,7 @@ public class Post_Item {
 
     public void setForTextPost(TextPost mpost){
         this.title = mpost.getTitle();
-        this.body = Utils.cleanHTML(mpost.getBody());
+        this.body = Html.fromHtml(mpost.getBody())+"";
         this.urlPhoto="";
     }
 
@@ -44,7 +49,7 @@ public class Post_Item {
             urlPhoto = photoSize.getUrl();
             break;
         }
-        this.body = Utils.cleanHTML(Utils.cleanHTML(mpost.getCaption()));
+        this.body = Html.fromHtml(mpost.getCaption())+"";
     }
 
     public String getType() {
@@ -59,8 +64,12 @@ public class Post_Item {
         return liked;
     }
 
-    public Blog_item getBlog_item() {
-        return blog_item;
+    public void setLiked(boolean liked) {
+        this.liked = liked;
+    }
+
+    public BlogItem getBlog_item() {
+        return blogItem;
     }
 
     public String getTitle() {
@@ -75,8 +84,35 @@ public class Post_Item {
         return urlPhoto;
     }
 
-
     public long getId() {
         return id;
+    }
+
+    public JSONObject getJSON(){
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("type",type);
+            obj.put("liked",liked);
+            obj.put("BlogItem",blogItem.getJSON());
+            obj.put("title",title);
+            obj.put("body",body);
+            obj.put("urlPhoto",urlPhoto);
+            obj.put("id",id);
+            obj.put("tags",tags);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return  obj;
+    }
+
+    public PostItem(JSONObject obj) throws JSONException {
+        type = obj.getString("type");
+        liked = obj.getBoolean("liked");
+        title = obj.getString("title");
+        body = obj.getString("body");
+        urlPhoto = obj.getString("urlPhoto");
+        id = obj.getLong("id");
+        tags = obj.getString("tags");
+        blogItem = new BlogItem(obj.getJSONObject("BlogItem"));
     }
 }

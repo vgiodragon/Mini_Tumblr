@@ -13,13 +13,18 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
-import com.giotec.mini_tumblr.Models.Post_Item;
+import com.giotec.mini_tumblr.Models.PostItem;
 import com.giotec.mini_tumblr.R;
+import com.giotec.mini_tumblr.Utils.Connections;
 import com.giotec.mini_tumblr.Utils.Utils;
+import com.tumblr.jumblr.JumblrClient;
 import com.tumblr.jumblr.types.Post;
 
 import java.util.HashMap;
@@ -35,53 +40,34 @@ import java.util.Map;
  * create an instance of this fragment.
  */
 public class Home extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
     private boolean loading = false;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private LinearLayoutManager layoutManager;
     private String TAG = "GIODEBUG_HOME";
-    private List<Post_Item> post_items;
+    private List<PostItem> post_items;
     private ProgressBar mprogressbar;
+    private static int n_loaded;
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+
+    private static OnFragmentInteractionListener mListener;
 
     public Home() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Home.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Home newInstance(String param1, String param2) {
+    public static Home newInstance(OnFragmentInteractionListener mListener2) {
         Home fragment = new Home();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
+        mListener = mListener2;
+        n_loaded= 0;
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -90,12 +76,13 @@ public class Home extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
         post_items = Utils.getPosts();
-        adapter = new MyAdapter(getContext(), post_items );
+        adapter = new MyAdapter(getActivity().getApplicationContext(), post_items,mListener );
         adapter.setHasStableIds(true);
         recyclerView = v.findViewById(R.id.my_recycler_noticia);
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
+        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
 
         mprogressbar = v.findViewById(R.id.progressBar);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -112,39 +99,45 @@ public class Home extends Fragment {
         return v;
     }
 
-    private class LoadMorePosts extends AsyncTask<Void, Void, Void> {
+    private class LoadMorePosts extends AsyncTask<Void, Void, Boolean> {
         private boolean newposts=false;
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected Boolean doInBackground(Void... voids) {
             if(!loading){
-                loading=true;
+                loading=true; n_loaded ++;
                 Map<String, Object> params = new HashMap<String, Object>();
-                params.put("limit", 7);
-                params.put("offset", Utils.getPosts().size());
-                List<Post> posts = Utils.getClient().userDashboard(params);
-                post_items.addAll(Utils.filterPosts(posts));
-                newposts = true;
-                loading=false;
+                params.put("limit", Utils.getLimit());
+                params.put("offset", Utils.getLimit()*n_loaded);
+                //If clien is null entonces no hay internet
+                JumblrClient client = Connections.getClient();
+                if(Connections.getClient()==null){
+                    client =Connections.getClientwithToken(getContext());
+                }
+
+                try {
+                    List<Post> posts = client.userDashboard(params);
+                    post_items.addAll(Utils.filterPosts(posts));
+                    newposts = true;
+                }catch (Exception ex) {
+                    Log.d(TAG,ex.getMessage());
+                    return false;
+                }
             }else{
                 Log.d(TAG,"Already loading...");
             }
-            return null;
+            return true;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            if(newposts){
-                mprogressbar.setVisibility(View.INVISIBLE);
+        protected void onPostExecute(Boolean internet) {
+            super.onPostExecute(internet);
+            if (!internet)
+                Toast.makeText(getContext(), getString(R.string.noInternet),
+                        Toast.LENGTH_LONG).show();
+            if(newposts)
                 adapter.notifyDataSetChanged();
-            }
-        }
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+            mprogressbar.setVisibility(View.INVISIBLE);
+            loading=false;
         }
     }
 
@@ -177,6 +170,16 @@ public class Home extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void setLike(ImageView iv_like,boolean like);
+        void Eliminate(View iv, int position);
     }
+
+    public void RemovePost(int position){
+        Toast.makeText(getContext(),"Removed : " + position,Toast.LENGTH_SHORT).show();
+
+        post_items.remove(position);
+        adapter.notifyItemRemoved(position);
+        adapter.notifyItemRangeChanged(position,post_items.size());
+    }
+
 }

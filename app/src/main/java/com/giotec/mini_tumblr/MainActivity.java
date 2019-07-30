@@ -1,19 +1,17 @@
 package com.giotec.mini_tumblr;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.viewpager.widget.ViewPager;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.widget.Toast;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
 import com.giotec.mini_tumblr.Fragments.Chat;
 import com.giotec.mini_tumblr.Fragments.Home.Home;
@@ -27,20 +25,13 @@ public class MainActivity extends AppCompatActivity implements Home.OnFragmentIn
     private ViewPager viewPager;
     private TabAdapter adapter;
     private String TAG = "GIODEBUG_TBMLR";
-
-    private static final int PERMISSION_ALL = 3;
-    private final int code_request=1234;
-    private static final String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.WAKE_LOCK};
+    private Home home;
+    private int positionToRemove;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        if(!hasPermissions(this, PERMISSIONS))
-            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
 
         viewPager = (ViewPager) findViewById(R.id.viewPager);
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);adapter = new TabAdapter(getSupportFragmentManager());
@@ -50,7 +41,8 @@ public class MainActivity extends AppCompatActivity implements Home.OnFragmentIn
     }
 
     private void AddFragmentsAndSetAdapter(){
-        adapter.addFragment(new Home(), "Home");
+        home = new Home().newInstance(this);
+        adapter.addFragment(home, "Home");
         adapter.addFragment(new Search(), "Search");
         adapter.addFragment(new Chat(), "Chat");
         adapter.addFragment(new Profile(), "Profile");
@@ -75,34 +67,35 @@ public class MainActivity extends AppCompatActivity implements Home.OnFragmentIn
 
     }
 
+    @Override
+    public void setLike(ImageView iv_like, boolean like){
+        if(like){
+            Animation animation = AnimationUtils.loadAnimation(this,R.anim.bounce);
+            iv_like.setImageResource(R.drawable.ic_favorite_red_24dp);
+            iv_like.startAnimation(animation);
+        }
+        else iv_like.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+    }
 
-    public static boolean hasPermissions(Context context, String... permissions) {
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
-            for (String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
+    @Override
+    public void Eliminate(View v, int position) {
+        PopupMenu popup = new PopupMenu(this, v);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.menu, popup.getMenu());
+        popup.show();
+        positionToRemove=position;
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.action_eliminar:
+                        home.RemovePost(positionToRemove);
+                        return true;
+                    default:
+                        return false;
                 }
             }
-        }
-        return true;
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case code_request:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "COARSE LOCATION permitido", Toast.LENGTH_SHORT)
-                            .show();
-                } else {
-                    // Permission Denied
-                    Toast.makeText(this, "COARSE LOCATION no permitido", Toast.LENGTH_SHORT)
-                            .show();
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
+        });
     }
 
 }

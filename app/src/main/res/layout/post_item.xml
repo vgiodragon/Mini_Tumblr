@@ -38,9 +38,21 @@
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:text="pythonprogrammingthings"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:textColor="@android:color/black"
                 android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textStyle="bold|italic" />
+
+            <ImageView
+                android:id="@+id/iv_cros"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:paddingStart="12dp"
+                android:paddingEnd="2dp"
+                app:srcCompat="@drawable/ic_cancel_black_24dp" />
+
 
         </RelativeLayout>
 
@@ -68,12 +80,13 @@
             android:id="@+id/tv_body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="9"
             android:autoLink="phone|web|email"
-            android:padding="15dp"
+            android:fontFamily="monospace"
+            android:paddingLeft="15dp"
+            android:paddingTop="15dp"
             android:paddingRight="15dp"
-            android:text="La Oficina Central de Servicios Generales UNI les da la bienvenida a todos los ingresantes y a la vez los mejores éxitos en este ciclo."
-            android:textSize="14sp" />
+            android:textColor="@android:color/black"
+            android:text="La Oficina Central de Servicios Generales UNI les da la bienvenida a todos los ingresantes y a la vez los mejores éxitos en este ciclo." />
 
         <TextView
             android:id="@+id/tv_tags"
@@ -81,11 +94,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="9"
             android:autoLink="phone|web|email"
+            android:fontFamily="sans-serif-smallcaps"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
             android:paddingBottom="15dp"
             android:text="#avengers\t #endgame\t #disney\t #lapostiva\t #lab+"
-            android:textSize="14sp" />
+            android:textStyle="italic" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -97,7 +111,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:paddingStart="10dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="2dp"
                 app:srcCompat="@drawable/ic_favorite_border_black_24dp" />
 
             <ImageView
@@ -105,7 +120,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toStartOf="@+id/iv_like"
-                android:paddingStart="10dp"
+                android:paddingStart="12dp"
                 app:srcCompat="@drawable/ic_cached_black_24dp" />
 
             <ImageView
@@ -113,7 +128,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toStartOf="@+id/iv_share"
-                android:paddingStart="10dp"
+                android:paddingStart="12dp"
                 app:srcCompat="@drawable/ic_textsms_black_24dp" />
 
             <ImageView
@@ -121,7 +136,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toStartOf="@+id/iv_talk"
-                android:paddingStart="10dp"
+                android:paddingStart="12dp"
                 app:srcCompat="@drawable/ic_send_black_24dp" />
 
         </RelativeLayout>
