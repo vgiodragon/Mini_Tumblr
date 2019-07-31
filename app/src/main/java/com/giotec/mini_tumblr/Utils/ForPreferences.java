@@ -14,25 +14,17 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class G_Utils {
+public class ForPreferences {
 
     private final static String valuePreference ="com.giotec.mini_tumblr";
     private final static String emptyJSONpost= "[]";
     private static final String idmjpost = "post_items";
-    private static String TAG="GIODEBUG_G_UTILS";
-
-
-    public static String getValuePreference() {
-        return valuePreference;
-    }
+    private static String TAG="GIODEBUG_ForPreferences";
 
     public static String getEmptyJSONpost() {
         return emptyJSONpost;
     }
 
-    public static String getIdmjpost() {
-        return idmjpost;
-    }
 
     public static void savePostinPreferences(Context ctx, List<PostItem> mnoticas){
         if(ctx==null) return;
@@ -48,21 +40,26 @@ public class G_Utils {
         for(PostItem post_item: post_items){
             jsonArray.put(post_item.getJSON());
         }
+        Log.d(TAG,jsonArray.toString());
         return jsonArray;
     }
 
 
     public static boolean isTherePreferences(Context ctx){
-        SharedPreferences sharedPref = ctx.getSharedPreferences(valuePreference, Context.MODE_PRIVATE);
-        String defaultpref = G_Utils.getEmptyJSONpost();
-        String mjposts = sharedPref.getString(idmjpost,defaultpref);
+        String defaultpref = ForPreferences.getEmptyJSONpost();
+        String mjposts = getStringfromPreferences(ctx,defaultpref);
 
         if(mjposts.equals(defaultpref)) return false;
 
         return loadBlogsandPosts(mjposts);
     }
 
-    private static boolean loadBlogsandPosts(String mjposts){
+    public static String getStringfromPreferences(Context ctx,String defaultpref){
+        SharedPreferences sharedPref = ctx.getSharedPreferences(valuePreference, Context.MODE_PRIVATE);
+        return sharedPref.getString(idmjpost,defaultpref);
+    }
+
+    public static boolean loadBlogsandPosts(String mjposts){
         List<BlogItem> mblogs = new ArrayList<>();
         List<PostItem> mposts = new ArrayList<>();
         try {
@@ -86,6 +83,7 @@ public class G_Utils {
 
 
     public static boolean isNewBlog(List<BlogItem> mblogs, BlogItem blog){
+        if(blog==null || mblogs == null) return false;
         for(BlogItem blog_item : mblogs){
             if(blog_item.getName().equals(blog.getName())) return false;
         }
@@ -93,6 +91,7 @@ public class G_Utils {
     }
 
     public static boolean validLogin(String user,String pass){
+        if(user==null || pass ==null) return false;
         if(user.equals("admin") && pass.equals("admin")) return true;
         return false;
     }

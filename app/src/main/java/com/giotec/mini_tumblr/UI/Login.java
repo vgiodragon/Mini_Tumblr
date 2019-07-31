@@ -1,4 +1,4 @@
-package com.giotec.mini_tumblr;
+package com.giotec.mini_tumblr.UI;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,10 +20,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.giotec.mini_tumblr.R;
 import com.giotec.mini_tumblr.UI.MainActivity.MainActivity;
 import com.giotec.mini_tumblr.Models.BlogItem;
 import com.giotec.mini_tumblr.Utils.Connections;
-import com.giotec.mini_tumblr.Utils.G_Utils;
+import com.giotec.mini_tumblr.Utils.ForPreferences;
 import com.giotec.mini_tumblr.Utils.Utils;
 
 import com.tumblr.jumblr.JumblrClient;
@@ -64,7 +65,7 @@ public class Login extends AppCompatActivity {
         String user = etUser.getText().toString();
         String pass = etPassword.getText().toString();
         etPassword.onEditorAction(EditorInfo.IME_ACTION_DONE);
-        if(G_Utils.validLogin(user,pass)) GoMainActivity();
+        if(ForPreferences.validLogin(user,pass)) GoMainActivity();
         else Toast.makeText(this,getString(R.string.login_failed),Toast.LENGTH_LONG).show();
 
     }
@@ -105,7 +106,7 @@ public class Login extends AppCompatActivity {
             super.onPostExecute(HayConexion);
 
             if(!HayConexion)
-                if(!G_Utils.isTherePreferences(getApplicationContext())){
+                if(!ForPreferences.isTherePreferences(getApplicationContext())){
                     Toast.makeText(getBaseContext(), getString(R.string.noInternet),
                             Toast.LENGTH_LONG).show();
                     bLogin.clearAnimation();

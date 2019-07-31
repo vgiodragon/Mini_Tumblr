@@ -12,9 +12,13 @@ import java.util.List;
 public class Utils {
     private static List<BlogItem> blogs;
     private static List<PostItem> posts;
-    private static String TAG="GIODEBUG_UTILS";
+    private static String TAG="GIODEBUG_ForPreferences";
     private static final int limit = 8;
 
+
+    public static List<BlogItem> getBlogs() {
+        return blogs;
+    }
 
     public static void setBlogs(List<BlogItem> blogs) {
         Utils.blogs = blogs;
@@ -33,7 +37,7 @@ public class Utils {
 
     public static void FilterSetAndSavePosts(List<Post> posts, Context context) {
         setPosts(filterPosts(posts));
-        G_Utils.savePostinPreferences(context,getPosts());
+        ForPreferences.savePostinPreferences(context,getPosts());
     }
 
     public static void setPosts(List<PostItem> posts) {

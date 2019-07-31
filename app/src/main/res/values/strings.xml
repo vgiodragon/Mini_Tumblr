@@ -12,5 +12,6 @@
     <string name="prompt_password">Contraseña</string>
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
-    <string name="login_failed">"Usuario y Contraseña erróneos"</string>
+    <string name="login_failed">Usuario y Contraseña erróneos</string>
+    <string name="testJSON">[{"type":"photo","liked":false,"BlogItem":{"avatar":"https:\/\/66.media.tumblr.com\/avatar_fc804123745b_64.png#_=_","name":"programminghumour"},"title":"","body":"Oh the fun of HTTP-based applications\n\n","urlPhoto":"https:\/\/66.media.tumblr.com\/4e665a95a987f2f68bbbb34ef3140542\/tumblr_pvfelayqhq1x779u4o1_1280.png","id":186655754547,"tags":"#funny    #joke    #programming    #programmer    #computer    #humor    "}]</string>
 </resources>
